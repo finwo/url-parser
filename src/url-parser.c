@@ -88,7 +88,6 @@ parse_url(const char *url)
     const char *curstr;
     int len;
     int i;
-    int userpass_flag;
     int bracket_flag;
     int is_path;
 

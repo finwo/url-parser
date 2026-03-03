@@ -55,6 +55,15 @@
 #include <string.h>
 
 ///
+/// Helper function for string comparison to avoid NULL warnings
+///
+static inline int _string_equals(const char *a, const char *b) {
+    if (a == NULL && b == NULL) return 1;
+    if (a == NULL || b == NULL) return 0;
+    return strcmp(a, b) == 0;
+}
+
+///
 /// API
 /// ---
 ///
@@ -90,10 +99,7 @@
 ///
 ///   Perform an equal string assertion
 ///<
-#define ASSERT_STRING_EQUALS(expected, actual) ASSERT((#actual), ( \
-    ((expected) == NULL && (actual) == NULL) || \
-    ((expected) != NULL && (actual) != NULL && strcmp((expected),(actual)) == 0) \
-))
+#define ASSERT_STRING_EQUALS(expected, actual) ASSERT((#actual), _string_equals((expected),(actual)))
 ///>
 /// </details>
 
