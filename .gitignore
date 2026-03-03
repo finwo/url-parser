@@ -1,0 +1,6 @@
+/test/unix-socket
+/test/empty-host
+/test/basic
+*.o
+.DS_Store
+._.DS_Store
