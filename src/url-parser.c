@@ -41,6 +41,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <limits.h>
+
+static const char *_last_error = NULL;
+
+const char *parse_url_last_error(void) {
+    return _last_error;
+}
+
+#define SET_ERROR(msg) do { _last_error = (msg); } while(0)
 
 /*
  * Prototype declarations
@@ -86,8 +95,8 @@ parse_url(const char *url)
     struct parsed_url *purl;
     const char *tmpstr;
     const char *curstr;
-    int len;
-    int i;
+    size_t len;
+    size_t i;
     int bracket_flag;
     int is_path;
 
@@ -120,6 +129,11 @@ parse_url(const char *url)
     }
     /* Get the scheme length */
     len = tmpstr - curstr;
+    if ( len > 64 ) {
+        SET_ERROR("ERR_SCHEME_TOO_LONG");
+        parsed_url_free(purl);
+        return NULL;
+    }
     /* Check restrictions */
     for ( i = 0; i < len; i++ ) {
         if ( !_is_scheme_char(curstr[i]) ) {
@@ -201,6 +215,11 @@ parse_url(const char *url)
         } else {
             len = tmpstr - curstr;
         }
+        if ( len > 255 ) {
+            SET_ERROR("ERR_USERNAME_TOO_LONG");
+            parsed_url_free(purl);
+            return NULL;
+        }
         if ( len > 0 ) {
             purl->username = malloc(sizeof(char) * (len + 1));
             if ( NULL == purl->username ) {
@@ -220,6 +239,11 @@ parse_url(const char *url)
                 tmpstr++;
             }
             len = tmpstr - curstr;
+            if ( len > 255 ) {
+                SET_ERROR("ERR_PASSWORD_TOO_LONG");
+                parsed_url_free(purl);
+                return NULL;
+            }
             if ( len > 0 ) {
                 purl->password = malloc(sizeof(char) * (len + 1));
                 if ( NULL == purl->password ) {
@@ -262,6 +286,11 @@ parse_url(const char *url)
             tmpstr++;
         }
         len = tmpstr - curstr;
+        if ( len > 255 ) {
+            SET_ERROR("ERR_HOST_TOO_LONG");
+            parsed_url_free(purl);
+            return NULL;
+        }
 
         if ( len > 0 ) {
             purl->host = malloc(sizeof(char) * (len + 1));
@@ -287,7 +316,22 @@ parse_url(const char *url)
                 tmpstr++;
             }
             len = tmpstr - curstr;
+            if ( len > 5 ) {
+                SET_ERROR("ERR_PORT_TOO_LONG");
+                parsed_url_free(purl);
+                return NULL;
+            }
             if ( len > 0 ) {
+                char port_str[6];
+                size_t copy_len = len < 5 ? len : 5;
+                (void)strncpy(port_str, curstr, copy_len);
+                port_str[copy_len] = '\0';
+                long port_val = strtol(port_str, NULL, 10);
+                if ( port_val < 1 || port_val > 65535 ) {
+                    SET_ERROR("ERR_PORT_INVALID");
+                    parsed_url_free(purl);
+                    return NULL;
+                }
                 purl->port = malloc(sizeof(char) * (len + 1));
                 if ( NULL == purl->port ) {
                     parsed_url_free(purl);
@@ -311,6 +355,11 @@ parse_url(const char *url)
         tmpstr++;
     }
     len = tmpstr - curstr;
+    if ( len > 4096 ) {
+        SET_ERROR("ERR_PATH_TOO_LONG");
+        parsed_url_free(purl);
+        return NULL;
+    }
     if ( len > 0 ) {
         purl->path = malloc(sizeof(char) * (len + 1));
         if ( NULL == purl->path ) {
@@ -330,6 +379,11 @@ parse_url(const char *url)
             tmpstr++;
         }
         len = tmpstr - curstr;
+        if ( len > 4096 ) {
+            SET_ERROR("ERR_QUERY_TOO_LONG");
+            parsed_url_free(purl);
+            return NULL;
+        }
         if ( len > 0 ) {
             purl->query = malloc(sizeof(char) * (len + 1));
             if ( NULL == purl->query ) {
@@ -350,6 +404,11 @@ parse_url(const char *url)
             tmpstr++;
         }
         len = tmpstr - curstr;
+        if ( len > 4096 ) {
+            SET_ERROR("ERR_FRAGMENT_TOO_LONG");
+            parsed_url_free(purl);
+            return NULL;
+        }
         if ( len > 0 ) {
             purl->fragment = malloc(sizeof(char) * (len + 1));
             if ( NULL == purl->fragment ) {

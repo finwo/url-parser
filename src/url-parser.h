@@ -61,6 +61,7 @@ extern "C" {
      */
     struct parsed_url * parse_url(const char *);
     void parsed_url_free(struct parsed_url *);
+    const char *parse_url_last_error(void);
 
 #ifdef __cplusplus
 }
