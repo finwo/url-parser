@@ -1,6 +1,7 @@
 /test/unix-socket
 /test/empty-host
 /test/basic
+/test/length-limits
 *.o
 .DS_Store
 ._.DS_Store

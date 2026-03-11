@@ -42,26 +42,26 @@
  * URL storage
  */
 struct parsed_url {
-    char *scheme;               /* mandatory */
-    char *host;                 /* mandatory */
-    char *port;                 /* optional */
-    char *path;                 /* optional */
-    char *query;                /* optional */
-    char *fragment;             /* optional */
-    char *username;             /* optional */
-    char *password;             /* optional */
+  char *scheme;   /* mandatory */
+  char *host;     /* mandatory */
+  char *port;     /* optional */
+  char *path;     /* optional */
+  char *query;    /* optional */
+  char *fragment; /* optional */
+  char *username; /* optional */
+  char *password; /* optional */
 };
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-    /*
-     * Declaration of function prototypes
-     */
-    struct parsed_url * parse_url(const char *);
-    void parsed_url_free(struct parsed_url *);
-    const char *parse_url_last_error(void);
+/*
+ * Declaration of function prototypes
+ */
+struct parsed_url *parse_url(const char *);
+void               parsed_url_free(struct parsed_url *);
+const char        *parse_url_last_error(void);
 
 #ifdef __cplusplus
 }
