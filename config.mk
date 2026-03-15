@@ -1,1 +1,1 @@
-SRC+=__DIRNAME/src/url-parser.c
+SRC+={{module.dirname}}/src/url-parser.c
